@@ -1,13 +1,27 @@
-name: prueba-docker
-on: push
+name: Deploy to AKSS
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  node-docker:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
-    container:
-      image: node:16-alpine3.16
+
     steps:
-      - name: Vision de la version
-        run: |
-          node -v
-          cat /etc/os-release
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get AKS credentials
+      run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
+
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f deployment.yaml
