@@ -1,4 +1,4 @@
-name: Depfloy to AKS
+name: Depoy to AKS
 
 on:
   push:
