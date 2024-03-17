@@ -1,4 +1,4 @@
-name: Depoy to AKS
+name: AKS Deployment
 
 on:
   push:
@@ -7,21 +7,20 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Azure Login
+    - name: Set up Azure CLI
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.CANARY_AZURE }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Get AKS credentials
-      run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
+    - name: Set AKS Cluster Context
+      run: az aks get-credentials --resource-group <resource-group-name> --name <aks-cluster-name>
 
     - name: Deploy to AKS
       run: |
-        kubectl apply -f deployment.yaml
+        # Aquí puedes agregar los comandos para desplegar tu aplicación en AKS usando kubectl
