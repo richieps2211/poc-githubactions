@@ -17,7 +17,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.CANARY_AZURE }}
 
     - name: Get AKS credentials
       run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
