@@ -1,4 +1,4 @@
-name: Deploy to AKS
+name: Depfloy to AKS
 
 on:
   push:
