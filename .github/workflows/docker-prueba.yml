@@ -1,4 +1,4 @@
-name: AKS Deployments
+name: AKS Deployment
 
 on:
   push:
@@ -13,13 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Azure CLI
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Azure Login
+      run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
     - name: Set AKS Cluster Context
-      run: az aks get-credentials --resource-group <resource-group-name> --name <aks-cluster-name>
+      run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
 
     - name: Deploy to AKS
       run: |
