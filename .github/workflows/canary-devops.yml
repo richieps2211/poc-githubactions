@@ -37,10 +37,10 @@ jobs:
           script: |
             const needsApproval = confirm("Do you want to approve the Canary deployment?");
             console.log(needsApproval.toString());
-            return { needsApproval: needsApproval.toString() };
+            return needsApproval.toString();
 
       - name: Promote or Reject Canary Deployment
-        if: success() && steps.approve_canary.outputs.needsApproval == 'true'
+        if: success() && steps.approve_canary.outputs.result == 'true'
         run: |
           # Verificamos si se aprobó la solicitud manual
           echo "Canary deployment approved. Promoting to production..."
@@ -58,7 +58,7 @@ jobs:
           echo "Canary deployment promoted to production successfully."
 
       - name: Reject Canary Deployment
-        if: success() && steps.approve_canary.outputs.needsApproval == 'false'
+        if: success() && steps.approve_canary.outputs.result == 'false'
         run: |
           # Si la aprobación manual fue rechazada, revertimos el despliegue canary
           echo "Canary deployment rejected. Rolling back..."
