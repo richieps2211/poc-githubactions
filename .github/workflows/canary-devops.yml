@@ -31,13 +31,20 @@ jobs:
         kubectl get services
         # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
-    - name: Wait for manual approval
+    - name: Request Manual Approval
       id: approve_canary
-      run: |
-        echo "Waiting for manual approval to promote Canary deployment..."
-        echo "Please approve or reject this deployment in the GitHub Actions interface."
-        # Simplemente esperamos la entrada del usuario
-        sleep 30  # Puedes ajustar el tiempo de espera según sea necesario
+      uses: actions/github-script@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { data: pullRequest } = await github.pulls.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.payload.pull_request.number
+          });
+          const body = pullRequest.body || '';
+          const needsApproval = body.includes('canary-deployment') && body.includes('approve');
+          return { needsApproval };
 
     - name: Promote or Reject Canary Deployment
       if: success() && steps.approve_canary.outcome == 'success'
