@@ -37,6 +37,7 @@ jobs:
           script: |
             const needsApproval = confirm("Do you want to approve the Canary deployment?");
             console.log(needsApproval.toString());
+            return { needsApproval };
 
       - name: Promote or Reject Canary Deployment
         if: success() && steps.approve_canary.outputs.needsApproval == 'true'
@@ -56,11 +57,13 @@ jobs:
 
           echo "Canary deployment promoted to production successfully."
 
-        else:
-          # Si la aprobación manual fue rechazada o no se realizó, revertimos el despliegue canary
-          echo "Canary deployment rejected or no manual approval provided. Rolling back..."
+      - name: Reject Canary Deployment
+        if: success() && steps.approve_canary.outputs.needsApproval == 'false'
+        run: |
+          # Si la aprobación manual fue rechazada, revertimos el despliegue canary
+          echo "Canary deployment rejected. Rolling back..."
 
           # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
           kubectl delete -f ./kubernetes/canary-deployment.yaml
 
-          echo "Canary deployment rejected or no manual approval provided and rolled back."
+          echo "Canary deployment rejected and rolled back."
