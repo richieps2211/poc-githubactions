@@ -8,28 +8,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Azure Login
-      run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+      - name: Azure Login
+        run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
-    - name: Set AKS Cluster Context
-      run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
+      - name: Set AKS Cluster Context
+        run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
 
-    - name: Deploy to Canary
-      run: |
-        kubectl apply -f ./kubernetes/deployment.yaml
-        echo "Canary deployment applied."
+      - name: Deploy to Canary
+        run: |
+          kubectl apply -f ./kubernetes/deployment.yaml
+          echo "Canary deployment applied."
 
-    - name: Check Canary Deployment
-      run: |
-        echo "Checking Canary deployment status..."
-        kubectl get pods
-        kubectl get services
-        # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
+      - name: Check Canary Deployment
+        run: |
+          echo "Checking Canary deployment status..."
+          kubectl get pods
+          kubectl get services
+          # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
-    - name: Request Manual Approval
+      - name: Request Manual Approval
         id: approve_canary
         uses: actions/github-script@v4
         with:
@@ -38,14 +38,12 @@ jobs:
             const needsApproval = confirm("Do you want to approve the Canary deployment?");
             return { needsApproval };
 
-    - name: Promote or Reject Canary Deployment
-      if: success() && steps.approve_canary.outcome == 'success'
-      run: |
-        # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
-        if [[ "${{ job.status }}" == "success" ]]; then
-           # Si la aprobación fue exitosa, promovemos el despliegue canary
-           echo "Canary deployment approved. Promoting to production..."
-            
+      - name: Promote or Reject Canary Deployment
+        if: success() && steps.approve_canary.outputs.needsApproval == 'true'
+        run: |
+          # Verificamos si se aprobó la solicitud manual
+          echo "Canary deployment approved. Promoting to production..."
+
           # Listar los archivos en el directorio
           ls -R ./kubernetes
             
@@ -57,12 +55,12 @@ jobs:
           kubectl apply -f ./kubernetes/promote-canary.yaml
 
           echo "Canary deployment promoted to production successfully."
-        else
-          # Si la aprobación falla, revertimos el despliegue canary
-          echo "Canary deployment rejected. Rolling back..."
-            
+
+        else:
+          # Si la aprobación manual fue rechazada o no se realizó, revertimos el despliegue canary
+          echo "Canary deployment rejected or no manual approval provided. Rolling back..."
+
           # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
           kubectl delete -f ./kubernetes/canary-deployment.yaml
-            
-          echo "Canary deployment rejected and rolled back."
-        fi
+
+          echo "Canary deployment rejected or no manual approval provided and rolled back."
