@@ -1,7 +1,7 @@
 name: Canary Deployment
 
 on:
-  workflow_dispatch:
+  pull_request:
 
 jobs:
   deploy:
@@ -29,20 +29,24 @@ jobs:
           kubectl get services
           # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
-      - name: Request Manual Approval
-        id: approve_canary
+      - name: Check Approval Comments
+        id: check_approval_comments
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const needsApproval = confirm("Do you want to approve the Canary deployment?");
-            console.log(needsApproval.toString());
-            return needsApproval.toString();
+            const { data: comments } = await github.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            const approvalComments = comments.filter(comment => comment.user.login !== 'github-actions[bot]' && comment.body.toLowerCase().includes('approve'));
+            return { hasApproval: approvalComments.length > 0 };
 
       - name: Promote or Reject Canary Deployment
-        if: success() && steps.approve_canary.outputs.result == 'true'
+        if: steps.check_approval_comments.outputs.hasApproval == 'true'
         run: |
-          # Verificamos si se aprobó la solicitud manual
+          # Se ha encontrado una aprobación en los comentarios de la solicitud de extracción
           echo "Canary deployment approved. Promoting to production..."
 
           # Listar los archivos en el directorio
@@ -58,9 +62,9 @@ jobs:
           echo "Canary deployment promoted to production successfully."
 
       - name: Reject Canary Deployment
-        if: success() && steps.approve_canary.outputs.result == 'false'
+        if: steps.check_approval_comments.outputs.hasApproval == 'false'
         run: |
-          # Si la aprobación manual fue rechazada, revertimos el despliegue canary
+          # No se ha encontrado una aprobación en los comentarios de la solicitud de extracción
           echo "Canary deployment rejected. Rolling back..."
 
           # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
