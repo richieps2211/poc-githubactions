@@ -1,4 +1,4 @@
-name: Canary Deployment
+name: Canary dDeployment
 
 on:
   push:
