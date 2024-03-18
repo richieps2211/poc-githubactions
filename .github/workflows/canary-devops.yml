@@ -31,44 +31,39 @@ jobs:
         kubectl get services
         # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
-  promote_or_reject_canary:
-    runs-on: ubuntu-latest
-    needs: deploy
-    environment: production
-    steps:
-      - name: Wait for manual approval
-        id: approve_canary
-        run: |
-          echo "Waiting for manual approval to promote Canary deployment..."
-          echo "Please approve or reject this deployment in the GitHub Actions interface."
-          # Simplemente esperamos la entrada del usuario
-          sleep 30  # Puedes ajustar el tiempo de espera según sea necesario
+    - name: Wait for manual approval
+      id: approve_canary
+      run: |
+        echo "Waiting for manual approval to promote Canary deployment..."
+        echo "Please approve or reject this deployment in the GitHub Actions interface."
+        # Simplemente esperamos la entrada del usuario
+        sleep 30  # Puedes ajustar el tiempo de espera según sea necesario
 
-      - name: Promote or Reject Canary Deployment
-        if: success() && steps.approve_canary.outcome == 'success'
-        run: |
-          # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
-          if [[ "${{ job.status }}" == "success" ]]; then
-            # Si la aprobación fue exitosa, promovemos el despliegue canary
-            echo "Canary deployment approved. Promoting to production..."
+    - name: Promote or Reject Canary Deployment
+      if: success() && steps.approve_canary.outcome == 'success'
+      run: |
+        # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
+        if [[ "${{ job.status }}" == "success" ]]; then
+           # Si la aprobación fue exitosa, promovemos el despliegue canary
+           echo "Canary deployment approved. Promoting to production..."
             
-            # Listar los archivos en el directorio
-            ls -R ./kubernetes
+          # Listar los archivos en el directorio
+          ls -R ./kubernetes
             
-            # Mostrar el contenido de los archivos
-            echo "Contents of promote-canary.yaml:"
-            cat ./kubernetes/promote-canary.yaml
+          # Mostrar el contenido de los archivos
+          echo "Contents of promote-canary.yaml:"
+          cat ./kubernetes/promote-canary.yaml
             
-            # Aplicar el despliegue canary
-            kubectl apply -f ./kubernetes/promote-canary.yaml
+          # Aplicar el despliegue canary
+          kubectl apply -f ./kubernetes/promote-canary.yaml
 
-            echo "Canary deployment promoted to production successfully."
-          else
-            # Si la aprobación falla, revertimos el despliegue canary
-            echo "Canary deployment rejected. Rolling back..."
+          echo "Canary deployment promoted to production successfully."
+        else
+          # Si la aprobación falla, revertimos el despliegue canary
+          echo "Canary deployment rejected. Rolling back..."
             
-            # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
-            kubectl delete -f ./kubernetes/canary-deployment.yaml
+          # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
+          kubectl delete -f ./kubernetes/canary-deployment.yaml
             
-            echo "Canary deployment rejected and rolled back."
-          fi
+          echo "Canary deployment rejected and rolled back."
+        fi
