@@ -25,7 +25,7 @@ jobs:
     - name: Deploy to AKS
       run: |
         # Comandos para desplegar la aplicación principal en AKS
-        kubectl apply -f deployment.yaml
+        kubectl apply -f ./kubernetes/deployment.yaml
 
     - name: Canary Deployment
       run: |
