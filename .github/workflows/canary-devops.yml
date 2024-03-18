@@ -52,7 +52,7 @@ jobs:
             # Si la aprobación fue exitosa, promovemos el despliegue canary
             echo "Canary deployment approved. Promoting to production..."
             # Actualizamos el servicio para redirigir todo el tráfico al despliegue canary
-            kubectl apply -f promote-canary.yaml
+            kubectl apply -f ./kubernetes/promote-canary.yaml
 
             echo "Canary deployment promoted to production successfully."
           else
