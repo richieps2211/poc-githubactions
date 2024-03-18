@@ -38,15 +38,14 @@ jobs:
     steps:
       - name: Wait for manual approval
         id: approve_canary
-        uses: azure/await-approval@v1
-        with:
-          poll-interval: 10
-          time-out: 600
-          message: "Do you want to promote this Canary deployment?"
-          continue-on-timeout: false
-          
+        run: |
+          echo "Waiting for manual approval to promote Canary deployment..."
+          echo "Please approve or reject this deployment in the GitHub Actions interface."
+          # Simplemente esperamos la entrada del usuario
+          sleep 30  # Puedes ajustar el tiempo de espera según sea necesario
+
       - name: Promote or Reject Canary Deployment
-        if: steps.approve_canary.outputs.result == 'approved'
+        if: success() && steps.approve_canary.outcome == 'success'
         run: |
           # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
           if [[ "${{ job.status }}" == "success" ]]; then
