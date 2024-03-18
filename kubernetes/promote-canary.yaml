@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: your-production-image:tag  # Reemplazar con la imagen de producción
+        image: nginx:latest  # Ejemplo de imagen pública de Docker Hub
         ports:
         - containerPort: 80  # Puerto en el que escucha tu aplicación
