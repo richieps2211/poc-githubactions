@@ -1,4 +1,4 @@
-name: AKS Deployment
+name: Canary Deployment
 
 on:
   push:
@@ -15,19 +15,18 @@ jobs:
 
     - name: Azure Login
       run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-      env:
-        AZURE_CORE_OUTPUT: table
-        AZURE_CORE_DISABLE_TELEMETRY: 1
 
     - name: Set AKS Cluster Context
       run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
 
-    - name: Deploy to AKS
+    - name: Deploy to Canary
       run: |
-        # Comandos para desplegar la aplicación principal en AKS
         kubectl apply -f ./kubernetes/deployment.yaml
+        echo "Canary deployment applied."
 
-    - name: Canary Deployment
+    - name: Check Canary Deployment
       run: |
-        # Comandos para desplegar la versión de canary de la aplicación en AKS
-        kubectl apply -f canary-deployment.yaml
+        echo "Checking Canary deployment status..."
+        kubectl get pods
+        kubectl get services
+        # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
