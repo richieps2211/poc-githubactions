@@ -36,23 +36,35 @@ jobs:
           # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
       - name: Check Approval Comments
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'issue_comment'
         id: check_approval_comments
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            if (context.payload.pull_request) {
-              const { data: comments } = await github.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number
-              });
-              const approvalComments = comments.filter(comment => comment.user.login !== 'github-actions[bot]' && comment.body.toLowerCase().includes('approve'));
-              return { hasApproval: approvalComments.length > 0 };
+            if (context.payload.issue && context.payload.comment) {
+              const issue = context.payload.issue;
+              const comment = context.payload.comment;
+              
+              if (issue.pull_request) {
+                // Si el comentario es para una solicitud de extracción
+                const { data: comments } = await github.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number
+                });
+                
+                const approvalComments = comments.filter(comment => comment.user.login !== 'github-actions[bot]' && comment.body.toLowerCase().includes('approve'));
+                return { hasApproval: approvalComments.length > 0 };
+              } else {
+                // Si el comentario es para un problema (no una solicitud de extracción)
+                // Verificar si el comentario es una aprobación
+                const isApproval = comment.body.toLowerCase().includes('approve');
+                return { hasApproval: isApproval };
+              }
             } else {
-              // No hay número de solicitud de extracción disponible
-              console.log("No pull request number available.");
+              // No hay información de la issue o el comentario
+              console.log("No issue or comment information available.");
               return { hasApproval: false };
             }
 
