@@ -1,4 +1,4 @@
-name: Canary Deployment
+name: Canary Deplosyment
 
 on:
   pull_request:
