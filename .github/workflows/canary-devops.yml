@@ -32,19 +32,13 @@ jobs:
         # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
     - name: Request Manual Approval
-      id: approve_canary
-      uses: actions/github-script@v4
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { data: pullRequest } = await github.pulls.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.payload.pull_request.number
-          });
-          const body = pullRequest.body || '';
-          const needsApproval = body.includes('canary-deployment') && body.includes('approve');
-          return { needsApproval };
+        id: approve_canary
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const needsApproval = confirm("Do you want to approve the Canary deployment?");
+            return { needsApproval };
 
     - name: Promote or Reject Canary Deployment
       if: success() && steps.approve_canary.outcome == 'success'
