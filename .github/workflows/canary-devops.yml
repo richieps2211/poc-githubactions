@@ -45,22 +45,43 @@ jobs:
           sleep 30  # Puedes ajustar el tiempo de espera según sea necesario
 
       - name: Promote or Reject Canary Deployment
-        if: success() && steps.approve_canary.outcome == 'success'
-        run: |
-          # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
-          if [[ "${{ job.status }}" == "success" ]]; then
-            # Si la aprobación fue exitosa, promovemos el despliegue canary
-            echo "Canary deployment approved. Promoting to production..."
-            # Actualizamos el servicio para redirigir todo el tráfico al despliegue canary
-            ls
-            cat ./kubernetes/promote-canary.yaml
-            kubectl apply -f ./kubernetes/promote-canary.yaml
+  if: success() && steps.approve_canary.outcome == 'success'
+  run: |
+    # Verificamos el estado del job anterior para decidir si promover o rechazar el despliegue
+    if [[ "${{ job.status }}" == "success" ]]; then
+      # Si la aprobación fue exitosa, promovemos el despliegue canary
+      echo "Canary deployment approved. Promoting to production..."
+      # Definimos los recursos en línea para la promoción del despliegue canary
+      cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-production
+  labels:
+    app: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: nginx:latest  # Ejemplo de imagen pública de Docker Hub
+        ports:
+        - containerPort: 80
+EOF
 
-            echo "Canary deployment promoted to production successfully."
-          else
-            # Si la aprobación falla, revertimos el despliegue canary
-            echo "Canary deployment rejected. Rolling back..."
-            # Eliminamos el despliegue canary y redirigimos todo el tráfico al despliegue estable
-            kubectl delete -f ./kubernetes/canary-deployment.yaml
-            echo "Canary deployment rejected and rolled back."
-          fi
+      echo "Canary deployment promoted to production successfully."
+    else
+      # Si la aprobación falla, revertimos el despliegue canary
+      echo "Canary deployment rejected. Rolling back..."
+      # Eliminamos el despliegue canary y redirigimos todo el tráfico al despliegue estable
+      kubectl delete -f ./kubernetes/canary-deployment.yaml
+      echo "Canary deployment rejected and rolled back."
+    fi
+
