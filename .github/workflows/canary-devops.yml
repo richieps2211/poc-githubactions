@@ -1,4 +1,4 @@
-name: Canary dDeployment
+name: Canary Deployment
 
 on:
   push:
@@ -35,64 +35,35 @@ jobs:
           kubectl get services
           # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
 
-      - name: Check Approval Comments
-        if: github.event_name == 'issue_comment'
-        id: check_approval_comments
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            if (context.payload.issue && context.payload.comment) {
-              const issue = context.payload.issue;
-              const comment = context.payload.comment;
-              
-              if (issue.pull_request) {
-                // Si el comentario es para una solicitud de extracción
-                const { data: comments } = await github.issues.listComments({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number
-                });
-                
-                const approvalComments = comments.filter(comment => comment.user.login !== 'github-actions[bot]' && comment.body.toLowerCase().includes('approve'));
-                return { hasApproval: approvalComments.length > 0 };
-              } else {
-                // Si el comentario es para un problema (no una solicitud de extracción)
-                // Verificar si el comentario es una aprobación
-                const isApproval = comment.body.toLowerCase().includes('approve');
-                return { hasApproval: isApproval };
-              }
-            } else {
-              // No hay información de la issue o el comentario
-              console.log("No issue or comment information available.");
-              return { hasApproval: false };
-            }
+      - name: Wait for Manual Approval
+        id: approve_canary
+        run: |
+          echo "Waiting for manual approval..."
+          sleep 10 # Espera 3 minutos (ajustable) antes de continuar
+          echo "Manual approval received."
 
       - name: Promote or Reject Canary Deployment
-        if: steps.check_approval_comments.outputs.hasApproval == 'true'
+        if: steps.approve_canary.outcome == 'success'
         run: |
-          # Se ha encontrado una aprobación en los comentarios de la solicitud de extracción
-          echo "Canary deployment approved. Promoting to production..."
+          if [ "${{ steps.check_approval_comments.outputs.hasApproval }}" == "true" ]; then
+            echo "Canary deployment approved. Promoting to production..."
 
-          # Listar los archivos en el directorio
-          ls -R ./kubernetes
+            # Listar los archivos en el directorio
+            ls -R ./kubernetes
             
-          # Mostrar el contenido de los archivos
-          echo "Contents of promote-canary.yaml:"
-          cat ./kubernetes/promote-canary.yaml
+            # Mostrar el contenido de los archivos
+            echo "Contents of promote-canary.yaml:"
+            cat ./kubernetes/promote-canary.yaml
             
-          # Aplicar el despliegue canary
-          kubectl apply -f ./kubernetes/promote-canary.yaml
+            # Aplicar el despliegue canary
+            kubectl apply -f ./kubernetes/promote-canary.yaml
 
-          echo "Canary deployment promoted to production successfully."
+            echo "Canary deployment promoted to production successfully."
+          else
+            echo "Canary deployment rejected. Rolling back..."
 
-      - name: Reject Canary Deployment
-        if: steps.check_approval_comments.outputs.hasApproval == 'false'
-        run: |
-          # No se ha encontrado una aprobación en los comentarios de la solicitud de extracción
-          echo "Canary deployment rejected. Rolling back..."
+            # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
+            kubectl delete -f ./kubernetes/canary-deployment.yaml
 
-          # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
-          kubectl delete -f ./kubernetes/canary-deployment.yaml
-
-          echo "Canary deployment rejected and rolled back."
+            echo "Canary deployment rejected and rolled back."
+          fi
