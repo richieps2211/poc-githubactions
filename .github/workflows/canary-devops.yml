@@ -37,7 +37,7 @@ jobs:
           script: |
             const needsApproval = confirm("Do you want to approve the Canary deployment?");
             console.log(needsApproval.toString());
-            return { needsApproval };
+            return { needsApproval: needsApproval.toString() };
 
       - name: Promote or Reject Canary Deployment
         if: success() && steps.approve_canary.outputs.needsApproval == 'true'
