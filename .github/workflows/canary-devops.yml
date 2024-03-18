@@ -36,7 +36,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const needsApproval = confirm("Do you want to approve the Canary deployment?");
-            return { needsApproval };
+            console.log(needsApproval.toString());
 
       - name: Promote or Reject Canary Deployment
         if: success() && steps.approve_canary.outputs.needsApproval == 'true'
