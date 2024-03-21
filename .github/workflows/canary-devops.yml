@@ -1,5 +1,5 @@
 name: Canary Deployment-Devops
- 
+
 on:
   push:
     branches:
@@ -8,26 +8,26 @@ on:
     branches:
       - main
   pull_request:
- 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
- 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
- 
+
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
- 
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
- 
+
       - name: Get ACR token
         id: acr_login
         run: |
           echo "::set-output name=acr_token::$(az acr login -n dockercanary --expose-token --output tsv --query accessToken)"
-     
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
@@ -36,34 +36,34 @@ jobs:
           tags: dockercanary.azurecr.io/my-app:latest
           secrets:
             registry-token: ${{ steps.acr_login.outputs.acr_token }}
- 
+
       - name: Set AKS Cluster Context
         run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
- 
+
       - name: Deploy to Canary
         run: |
           kubectl apply -f ./kubernetes/deployment.yaml
           echo "Canary deployment applied."
- 
+
       - name: Check Canary Deployment
         run: |
           echo "Checking Canary deployment status..."
           kubectl get pods
           kubectl get services
           # Puedes agregar más comandos para obtener información adicional sobre el despliegue en Canary
- 
+
       - name: Request Manual Approval
         id: approve_canary
         run: |
           echo "Waiting for manual approval..."
           sleep 180 # Espera 3 minutos (ajustable) antes de continuar
           echo "Manual approval received."
- 
+
       - name: Promote Canary Deployment
         if: success()
         run: |
           echo "Canary deployment approved. Promoting to production..."
- 
+
           # Listar los archivos en el directorio
           ls -R ./kubernetes
            
@@ -73,15 +73,15 @@ jobs:
            
           # Aplicar el despliegue canary
           kubectl apply -f ./kubernetes/promote-canary.yaml
- 
+
           echo "Canary deployment promoted to production successfully."
- 
+
       - name: Reject Canary Deployment
         if: failure()
         run: |
           echo "Canary deployment rejected. Rolling back..."
- 
+
           # Eliminar el despliegue canary y redirigir todo el tráfico al despliegue estable
           kubectl delete -f ./kubernetes/canary-deployment.yaml
- 
+
           echo "Canary deployment rejected and rolled back."
