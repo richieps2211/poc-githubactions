@@ -85,3 +85,6 @@ jobs:
           kubectl delete -f ./kubernetes/canary-deployment.yaml
 
           echo "Canary deployment rejected and rolled back."
+
+- name: Additional Step After Deployment
+  run: echo "This step runs after Canary deployment"
