@@ -29,11 +29,11 @@ jobs:
           ACR_TOKEN=$(az acr login -n dockercanary --expose-token --output tsv --query accessToken)
           echo "::set-output name=acr_token::$ACR_TOKEN"
 
-    - name: Build and push Docker image
-      run: |
-        docker build -t dockercanary.azurecr.io/my-app:latest .
-        docker login dockercanary.azurecr.io -u USERNAME -p ${{ steps.acr_login.outputs.acr_token }}
-        docker push dockercanary.azurecr.io/my-app:latest
+      - name: Build and push Docker image
+        run: |
+          docker build -t dockercanary.azurecr.io/my-app:latest .
+          docker login dockercanary.azurecr.io -u USERNAME -p ${{ steps.acr_login.outputs.acr_token }}
+          docker push dockercanary.azurecr.io/my-app:latest
 
       - name: Set AKS Cluster Context
         run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
