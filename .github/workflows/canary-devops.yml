@@ -34,8 +34,8 @@ jobs:
           context: .
           push: true
           tags: dockercanary.azurecr.io/my-app:latest
-          secrets:
-            registry-token: ${{ steps.acr_login.outputs.acr_token }}
+          args: |
+            --registry-token ${{ steps.acr_login.outputs.acr_token }
 
       - name: Set AKS Cluster Context
         run: az aks get-credentials --resource-group kuberetesServices --name myAKSKubernetes
