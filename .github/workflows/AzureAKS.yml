@@ -27,13 +27,17 @@ jobs:
         uses: actions/checkout@v3.1.0
 
       # Paso para autenticarse en Azure CLI
+      - name: 'Set Azure CLI environment variables'
+        run: |
+          export AZURE_CLIENT_ID="3e9fa4df-cde3-4fab-8afb-8586dcde9ac6"
+          export AZURE_CLIENT_SECRET="77325ae7-1dfe-4bfd-90dd-b26cf4f2622d"
+          export AZURE_TENANT_ID="6a70eb11-ce8f-424d-9620-582fa1b6e271"
+          export AZURE_SUBSCRIPTION_ID="d66153cf-7d16-40ee-9ab2-5099995a0e77"
+
       - name: 'Az CLI login'
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_SP_APPID }}
-          client-secret: ${{ secrets.AZURE_SP_PASSWORD }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+          az account set --subscription $AZURE_SUBSCRIPTION_ID
 
       # Paso para configurar Terraform
       - name: Setup Terraform
