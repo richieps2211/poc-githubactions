@@ -30,9 +30,10 @@ jobs:
       - name: 'Az CLI login'
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_SP_APPID }} # ID del Service Principal
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }} # ID del inquilino de Azure AD
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} # ID de la suscripción de Azure
+          client-id: ${{ secrets.AZURE_SP_APPID }}
+          client-secret: ${{ secrets.AZURE_SP_PASSWORD }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
 
       # Paso para configurar Terraform
       - name: Setup Terraform
