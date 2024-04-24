@@ -31,15 +31,6 @@ jobs:
           terraform_version: latest
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
 
-  Execute_Terraform:
-    needs: Deploy-GH_Azure_aks
-    runs-on: ubuntu-latest
-
-    steps:
-      # Paso para clonar el repositorio
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-        
       # Paso para inicializar Terraform
       - name: Terraform Init
         id: init
