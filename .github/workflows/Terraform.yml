@@ -4,7 +4,7 @@ on:
   repository_dispatch:
   
 jobs:
-  execution-terraform:
+  execution:
     runs-on: ubuntu-latest
     steps:
       # Paso para configurar Terraform
