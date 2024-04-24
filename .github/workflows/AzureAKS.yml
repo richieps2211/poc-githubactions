@@ -13,38 +13,16 @@ permissions:
 
 jobs:
   Deploy-GH_Azure_aks:
-    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
-
-    # Configuración predeterminada para los pasos del trabajo
-    defaults:
-      run:
-        shell: bash
-        working-directory: AKS # Directorio de trabajo para los pasos del workflow
+    runs-on: ubuntu-latest
 
     steps:
-      # Paso para clonar el repositorio en la máquina virtual
+      # Paso para clonar el repositorio
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
       # Paso para autenticarse en Azure CLI
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
-      # - name: Invocar Workflow Hijo
-      #   uses: actions/checkout@v2
-      #   with:
-      #     repository: "${{ github.repository_owner }}/poc-githubactions"
-      #     token: "${{ secrets.PAT }}"
-      #     ref: feature/aks-terraform-ghactions
-      #     path: child-repo
-
-      # - name: Repository Dispatch
-      #   uses: peter-evans/repository-dispatch@v3
-      #   with:
-      #     token: "${{ secrets.PAT }}"
-      #     repository: "${{ github.repository_owner }}/poc-githubactions"
-      #     event-type: repository_dispatch
-      #     client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "job-id": "execution" }'
 
       # Paso para configurar Terraform
       - name: Setup Terraform
@@ -53,12 +31,15 @@ jobs:
           terraform_version: latest
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
 
-  Execute_terraform:
-    needs: Deploy-GH_Azure_aks # Dependencia del primer job
+  Execute_Terraform:
+    needs: Deploy-GH_Azure_aks
     runs-on: ubuntu-latest
 
-    steps: 
-
+    steps:
+      # Paso para clonar el repositorio
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+        
       # Paso para inicializar Terraform
       - name: Terraform Init
         id: init
@@ -80,19 +61,10 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      # Paso para aplicar los cambios en Terraform (crear o actualizar recursos)
+      # Paso para aplicar los cambios en Terraform
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
       # Paso para obtener las salidas (outputs) de Terraform
       - name: Terraform Output
         run: terraform output
-
-      # Paso para desplegar la aplicación en el clúster AKS
-      # - name: Deploy Application
-      #   run: |
-      #     az aks get-credentials -n "cluster-bursting-jennet" -g "rg-refined-swine"
-      #     kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
-      #     sleep 40
-      #     kubectl get service store-front
-      #     rm -rf ~/.kube
