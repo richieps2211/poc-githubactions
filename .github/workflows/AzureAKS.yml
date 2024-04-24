@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  Login to Azure:
+  Login-Azure:
     runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
 
     # Configuración predeterminada para los pasos del trabajo
@@ -31,6 +31,7 @@ jobs:
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
 
   Execute-Terraform:
+    needs: Login-Azure
     runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
 
     # Configuración predeterminada para los pasos del trabajo
