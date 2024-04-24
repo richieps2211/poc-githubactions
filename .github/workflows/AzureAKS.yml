@@ -53,7 +53,6 @@ jobs:
           terraform_version: latest
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
 
-jobs:
   Execute_terraform:
     runs-on: ubuntu-latest
 
