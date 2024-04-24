@@ -1,0 +1,80 @@
+name: Create Azure AKS With Terraform
+
+# Configuración de los eventos que dispararán el workflow
+on:
+  push: # Ejecuta el workflow cuando se haga un push a Git
+    branches:
+      - feature/*
+
+# Permisos necesarios para el workflow
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  AKS-Cluster-Deployment:
+    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
+
+    # Configuración predeterminada para los pasos del trabajo
+    defaults:
+      run:
+        shell: bash
+        working-directory: AKS # Directorio de trabajo para los pasos del workflow
+
+    steps:
+      # Paso para clonar el repositorio en la máquina virtual
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+
+      # Paso para autenticarse en Azure CLI
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_SP_APPID }} # ID del Service Principal
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }} # ID del inquilino de Azure AD
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} # ID de la suscripción de Azure
+
+      # Paso para configurar Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.2
+        with:
+          terraform_version: latest
+          cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
+
+      # Paso para inicializar Terraform
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      # Paso para validar los archivos de configuración de Terraform
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      # Paso para planificar los cambios en Terraform
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+        continue-on-error: true
+
+      # Paso para verificar si el plan de Terraform ha fallado
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      # Paso para aplicar los cambios en Terraform (crear o actualizar recursos)
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      # Paso para obtener las salidas (outputs) de Terraform
+      - name: Terraform Output
+        run: terraform output
+
+      # Paso para desplegar la aplicación en el clúster AKS
+      - name: Deploy Application
+        run: |
+          az aks get-credentials -n "cluster-bursting-jennet" -g "rg-refined-swine"
+          kubectl apply -f ./AKSApp/aks-store-quickstart.yaml
+          sleep 40
+          kubectl get service store-front
+          rm -rf ~/.kube
