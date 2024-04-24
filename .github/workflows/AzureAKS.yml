@@ -41,6 +41,9 @@ jobs:
         working-directory: AKS # Directorio de trabajo para los pasos del workflow
 
     steps:
+      # Paso para clonar el repositorio
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
 
       # Paso para configurar Terraform
       - name: Setup Terraform
