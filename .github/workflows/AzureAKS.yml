@@ -34,14 +34,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: "${{ github.repository_owner }}/poc-githubactions"
-          token: "${{ secrets.PAT }}"
+          token: ${{ secrets.PAT }}
           ref: feature/aks-terraform-ghactions
           path: child-repo
 
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: "${{ secrets.PAT }}"
+          token: ${{ secrets.PAT }}
           repository: "${{ github.repository_owner }}/poc-githubactions"
           event-type: repository_dispatch
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "job-id": "execution-terraform" }'
