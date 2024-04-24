@@ -12,8 +12,14 @@ permissions:
   contents: read
 
 jobs:
-  Deploy-GH_Azure_aks:
-    runs-on: ubuntu-latest
+  Login to Azure:
+    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
+
+    # Configuración predeterminada para los pasos del trabajo
+    defaults:
+      run:
+        shell: bash
+        working-directory: AKS # Directorio de trabajo para los pasos del workflow
 
     steps:
       # Paso para clonar el repositorio
@@ -23,6 +29,17 @@ jobs:
       # Paso para autenticarse en Azure CLI
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+  Execute-Terraform:
+    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
+
+    # Configuración predeterminada para los pasos del trabajo
+    defaults:
+      run:
+        shell: bash
+        working-directory: AKS # Directorio de trabajo para los pasos del workflow
+
+    steps:
 
       # Paso para configurar Terraform
       - name: Setup Terraform
