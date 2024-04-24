@@ -28,12 +28,11 @@ terraform {
   }
 
   # Configuración del backend remoto
-  backend "remote" {
-    hostname     = "app.terraform.io"     # Hostname del backend remoto
-    organization = "richie-terraform"     # Organización en Terraform Cloud
+  cloud {
+    organization = "richie-terraform"
 
     workspaces {
-      name = "ghactions-aks"           # Nombre del espacio de trabajo
+      name = "ghactions-aks"
     }
   }
 }
