@@ -73,7 +73,7 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-      # Paso para aplicar los cambios en Terraform
+      # Paso para aplicar los cambios en Terraform (crear o actualizar recursos)
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
