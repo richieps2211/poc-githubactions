@@ -54,6 +54,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
 
   Execute_terraform:
+    needs: Deploy-GH_Azure_aks # Dependencia del primer job
     runs-on: ubuntu-latest
 
     steps: 
