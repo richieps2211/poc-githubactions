@@ -39,5 +39,7 @@ terraform {
 
 # Configuración del proveedor azurerm (Azure Resource Manager)
 provider "azurerm" {
-  features {}  # Habilita las características adicionales del proveedor
+  features {}
+  skip_provider_registration = true
 }
+
