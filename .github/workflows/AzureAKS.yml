@@ -1,4 +1,4 @@
-name: GihubActions-AKS-BuildTerraform-DevOps
+name: GihubActions-AKS-BuildTerraform-DevOps01
 
 # Configuración de los eventos que dispararán el workflow
 on:
