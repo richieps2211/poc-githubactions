@@ -1,4 +1,4 @@
-name: Create Azure AKS With Terraform
+name: GHACTIONS-AKS
 
 # Configuración de los eventos que dispararán el workflow
 on:
