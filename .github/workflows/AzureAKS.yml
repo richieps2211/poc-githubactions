@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  AKS-Cluster-Deployment:
+  Deploy-GH_Azure_aks:
     runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
 
     # Configuración predeterminada para los pasos del trabajo
