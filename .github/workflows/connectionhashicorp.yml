@@ -1,4 +1,4 @@
-name: Deploy to AKSS
+name: Connection Hashicorp Vault On-Premise
 
 on:
   push:
