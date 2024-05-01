@@ -1,4 +1,4 @@
-name: Connection Hashicorp Vault On-Premise
+name: Connection Hashicorp Vault On-Premise GHActions
 
 on:
   push:
