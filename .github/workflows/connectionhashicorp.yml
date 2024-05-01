@@ -1,26 +1,36 @@
-name: Connection Hashicorp Vault On-Premise GHActions
+name: Vault Access Workflow
 
 on:
   push:
     branches:
-      - test-connection-hashicorp
+      - main
 
 jobs:
-  test_vault_connectivity:
+  access-vault:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Install Vault CLI
-      run: |
-        wget https://releases.hashicorp.com/vault/1.8.2/vault_1.8.2_linux_amd64.zip
-        unzip vault_1.8.2_linux_amd64.zip
-        sudo mv vault /usr/local/bin/
-        vault --version
-
-    - name: Verify Vault connectivity
-      run: |
-        export VAULT_ADDR=http://localhost:8200
-        vault status
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Set up Vault token
+        env:
+          VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}
+        run: |
+          echo "$VAULT_TOKEN" > ~/.vault-token
+          chmod 600 ~/.vault-token
+          
+      - name: Access Vault
+        run: |
+          # Ejemplo: Obtener el estado del sistema de Vault
+          vault status
+          
+      - name: Verify Vault Connection
+        run: |
+          # Verificar si la conexión fue exitosa
+          if [ $? -eq 0 ]; then
+            echo "La conexión a Vault fue exitosa"
+          else
+            echo "Hubo un error al conectar con Vault"
+            exit 1
+          fi
