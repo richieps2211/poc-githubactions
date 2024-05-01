@@ -1,4 +1,4 @@
-name: Obtener IP GHActions
+name: Obtener IP GHActionss
 
 on:
   push:
