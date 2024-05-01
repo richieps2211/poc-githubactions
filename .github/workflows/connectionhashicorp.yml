@@ -1,0 +1,26 @@
+name: Deploy to AKSS
+
+on:
+  push:
+    branches:
+      - test-connection-hashicorp
+
+jobs:
+  test_vault_connectivity:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Vault CLI
+      run: |
+        wget https://releases.hashicorp.com/vault/1.8.2/vault_1.8.2_linux_amd64.zip
+        unzip vault_1.8.2_linux_amd64.zip
+        sudo mv vault /usr/local/bin/
+        vault --version
+
+    - name: Verify Vault connectivity
+      run: |
+        export VAULT_ADDR=http://localhost:8200
+        vault status
