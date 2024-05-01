@@ -1,4 +1,4 @@
-name: Deploy to AKSS
+name: Obtener IP GHActions
 
 on:
   push:
@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Obtener dirección IP del runner
-        run: echo "La dirección IP del runner es ${{ runner.ip }}"
+        run: echo "La dirección IP del runner es $(curl -s https://icanhazip.com)"
