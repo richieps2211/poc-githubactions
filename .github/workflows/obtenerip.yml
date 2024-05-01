@@ -1,0 +1,13 @@
+name: Deploy to AKSS
+
+on:
+  push:
+    branches:
+      - obtain-ip
+
+jobs:
+  get-ip-address:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener dirección IP del runner
+        run: echo "La dirección IP del runner es ${{ runner.ip }}"
