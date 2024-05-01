@@ -3,7 +3,7 @@ name: Vault Access Workflow
 on:
   push:
     branches:
-      - main
+      - test-connection-hashicorp
 
 jobs:
   access-vault:
