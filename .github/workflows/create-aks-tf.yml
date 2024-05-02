@@ -3,7 +3,7 @@ name: CasoPractico-GHActionsTerraformChapter
 on:
   push: 
     branches:
-      - workflows-*
+      - feature/*
 
 permissions:
   id-token: write
@@ -12,6 +12,11 @@ permissions:
 jobs:
   Login-Azure:
     runs-on: ubuntu-latest 
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: deploy-terraform 
 
     steps:
       - name: Checkout
@@ -22,28 +27,8 @@ jobs:
 
   Execute-Terraform:
     needs: Login-Azure
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run JSON reading script
-        id: run-script
-        run: |
-          chmod +x lecturajson.sh  # Dar permisos de ejecución al script
-          source ./lecturajson.sh  # Ejecutar el script para establecer las variables
-
-          # Definir un array con las variables que queremos exportar
-          declare -a vars=("workingdirectory" "secret")
-
-          # Exportar cada variable al entorno
-          for var in "${vars[@]}"; do
-            echo "$var=${!var}" >> $GITHUB_ENV
-          done
-
-  Deploy-Terraform:
-    needs: Execute-Terraform
-    runs-on: ubuntu-latest
-    steps:
-      - name: Execute Terraform
-        uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
-        with:
-          working-directory: ${{ steps.run-script.outputs.workingdirectory }}
-          tfc-token: ${{ secrets["secrets." + secret] }}
+    uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
+    with:
+      working-directory: deploy-terraform
+    secrets:
+      tfc-token: ${{ secrets.TFC_TOKEN_ID }}
