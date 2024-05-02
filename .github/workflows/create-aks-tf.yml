@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: AKS # Directorio de trabajo para los pasos del workflow
+        working-directory: deploy-terraform # Directorio de trabajo para los pasos del workflow
 
     steps:
       # Paso para clonar el repositorio
@@ -38,7 +38,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: AKS # Directorio de trabajo para los pasos del workflow
+        working-directory: deploy-terraform # Directorio de trabajo para los pasos del workflow
 
     steps:
       # Paso para clonar el repositorio
