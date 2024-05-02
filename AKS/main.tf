@@ -45,13 +45,13 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   }
 
   # Perfil de Linux para la configuración del usuario administrador y la clave SSH
-  linux_profile {
-    admin_username = var.username                                  # Nombre de usuario administrador
-    ssh_key {
-      # Decodificación de la clave pública SSH generada por una acción personalizada
-      key_data = jsondecode(azapi_resource_action.ssh_public_key_gen.output).publicKey
-    }
+linux_profile {
+  admin_username = var.username
+  ssh_key {
+    key_data = azapi_resource_action.ssh_public_key_gen.output.publicKey
   }
+}
+
 
   # Configuración del perfil de red
   network_profile {
