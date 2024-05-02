@@ -38,49 +38,10 @@ jobs:
     needs: Login-Azure
     runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
 
-    # Configuración predeterminada para los pasos del trabajo
-    defaults:
-      run:
-        shell: bash
-        working-directory: deploy-terraform # Directorio de trabajo para los pasos del workflow
-
     steps:
       # Paso para clonar el repositorio
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-
-      # Paso para configurar Terraform
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2.0.2
+      - name: Call reusable workflow
+        uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
         with:
-          terraform_version: latest
-          cli_config_credentials_token: ${{ secrets.TFC_TOKEN_ID }} # Token de Terraform Cloud
-
-      # Paso para inicializar Terraform
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      # Paso para validar los archivos de configuración de Terraform
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
-
-      # Paso para planificar los cambios en Terraform
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan
-        continue-on-error: true
-
-      # Paso para verificar si el plan de Terraform ha fallado
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
-      # Paso para aplicar los cambios en Terraform (crear o actualizar recursos)
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-
-      # Paso para obtener las salidas (outputs) de Terraform
-      - name: Terraform Output
-        run: terraform output
+          token-id: ${{ secrets.TFC_TOKEN_ID }}
+          working-directory: deploy-terraform
