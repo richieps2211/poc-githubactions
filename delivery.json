@@ -1,0 +1,4 @@
+{
+  "working-directory": "deploy-terraform",
+  "secret": "TFC_TOKEN_ID"
+}
