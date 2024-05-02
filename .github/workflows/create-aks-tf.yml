@@ -1,4 +1,4 @@
-name: GihubActions-AKS-BuildTerraform-DevOpsb0112
+name: GihubActions-AKS-BuildTerrafonhrm-DevOpsb0112
 
 on:
   push: 
