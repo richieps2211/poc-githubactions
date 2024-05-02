@@ -29,5 +29,4 @@ jobs:
     needs: Login-Azure
     uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
     with:
-      token-id: ${{ secrets.TFC_TOKEN_ID }}
       working-directory: deploy-terraform
