@@ -30,3 +30,5 @@ jobs:
     uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
     with:
       working-directory: deploy-terraform
+    secrets:
+      tfc-token: ${{ secrets.TFC_TOKEN_ID }}
