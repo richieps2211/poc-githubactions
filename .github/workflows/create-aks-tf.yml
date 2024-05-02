@@ -1,41 +1,36 @@
 name: GihubActions-AKS-BuildTerraform-DevOps0112
 
 on:
-  push: # Ejecuta el workflow cuando se haga un push a Git
+  push: 
     branches:
-      - workflows-reusbale-terraform
+      - workflows-reusable-terraform
 
-# Permisos necesarios para el workflow
 permissions:
   id-token: write
   contents: read
 
 jobs:
   Login-Azure:
-    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
+    runs-on: ubuntu-latest 
 
-    # Configuración predeterminada para los pasos del trabajo
     defaults:
       run:
         shell: bash
-        working-directory: deploy-terraform # Directorio de trabajo para los pasos del workflow
+        working-directory: deploy-terraform 
 
     steps:
-      # Paso para clonar el repositorio
       - name: Checkout
         uses: actions/checkout@v3.1.0
 
-      # Paso para autenticarse en Azure CLI
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-  
+
   Execute-Terraform:
     needs: Login-Azure
-    runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
+    runs-on: ubuntu-latest 
 
     steps:
-      # Paso para clonar el repositorio
-      - name: Call reusable workflow
+      - name: Use reusable workflow
         uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
         with:
           token-id: ${{ secrets.TFC_TOKEN_ID }}
