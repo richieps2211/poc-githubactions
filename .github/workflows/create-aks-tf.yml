@@ -29,7 +29,11 @@ jobs:
       # Paso para autenticarse en Azure CLI
       - name: Azure Login
         run: az login --service-principal -u ${{ secrets.AZURE_SP_APPID }} -p ${{ secrets.AZURE_SP_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
+  
+  call-reusable-workflow:
+    needs: Login-Azure
+    uses: richieps2211/git-actions/.github/workflows/first-action.yml@terraform-deploy
+    
   Execute-Terraform:
     needs: Login-Azure
     runs-on: ubuntu-latest # El trabajo se ejecutará en una máquina virtual con Ubuntu
