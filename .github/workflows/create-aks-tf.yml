@@ -27,11 +27,7 @@ jobs:
 
   Execute-Terraform:
     needs: Login-Azure
-    runs-on: ubuntu-latest 
-
-    steps:
-      - name: Use reusable workflow
-        uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
-        with:
-          token-id: ${{ secrets.TFC_TOKEN_ID }}
-          working-directory: deploy-terraform
+    uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
+    with:
+      token-id: ${{ secrets.TFC_TOKEN_ID }}
+      working-directory: deploy-terraform
