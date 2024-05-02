@@ -53,6 +53,7 @@ linux_profile {
 }
 
 
+
   # Configuración del perfil de red
   network_profile {
     network_plugin    = "kubenet"                 # Plugin de red a utilizar
