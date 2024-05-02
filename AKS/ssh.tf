@@ -25,5 +25,6 @@ resource "azapi_resource" "ssh_public_key" {
 
 # Output para mostrar la clave pública SSH generada
 output "key_data" {
-  value = jsondecode(azapi_resource_action.ssh_public_key_gen.output.json_data).publicKey # Decodifica y muestra la clave pública SSH
+  value = azapi_resource_action.ssh_public_key_gen.output.publicKey
 }
+
