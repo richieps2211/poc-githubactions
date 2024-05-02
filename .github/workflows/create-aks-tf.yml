@@ -4,7 +4,7 @@ name: GihubActions-AKS-BuildTerraform-DevOps0112
 on:
   push: # Ejecuta el workflow cuando se haga un push a Git
     branches:
-      - feature/*
+      - workflows-reusbale-terraform
 
 # Permisos necesarios para el workflow
 permissions:
