@@ -37,10 +37,13 @@ jobs:
           for var in "${vars[@]}"; do
             echo "$var=${!var}" >> $GITHUB_ENV
           done
-      
+
+  Deploy-Terraform:
+    needs: Execute-Terraform
+    runs-on: ubuntu-latest
+    steps:
       - name: Execute Terraform
         uses: richieps2211/git-actions/.github/workflows/deployterraform.yml@terraform-deploy
         with:
-          working-directory: $workingdirectory
+          working-directory: ${{ steps.run-script.outputs.workingdirectory }}
           tfc-token: ${{ secrets["secrets." + secret] }}
-
