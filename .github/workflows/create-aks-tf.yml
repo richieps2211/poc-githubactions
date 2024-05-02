@@ -1,7 +1,7 @@
-name: GihubActions-AKS-BuildTerrafonhrm-DevOpsb0112
+name: GihubActions-AKS-BuildTerraform-DevOps0112
 
 on:
-  push: # Ejecuta el workflow cuando se haga un push a Git
+  push: 
     branches:
       - workflows-*
 
