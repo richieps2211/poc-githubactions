@@ -3,7 +3,7 @@ name: CasoPractico-GHActionsTerraformChapter
 on:
   push: 
     branches:
-      - feature/*
+      - workflows-*
 
 permissions:
   id-token: write
