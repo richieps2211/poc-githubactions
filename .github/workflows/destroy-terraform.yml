@@ -9,5 +9,5 @@ jobs:
   destroy-terraform:
     runs-on: ubuntu-latest
     steps:
-      - name: Obtener dirección IP del runner
+      - name: Destruir Terraform
         run: echo "La dirección IP del runner es $(curl -s https://icanhazip.com)"
