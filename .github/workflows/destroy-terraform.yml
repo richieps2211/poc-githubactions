@@ -3,10 +3,10 @@ name: Obtener IP GHActionss
 on:
   push:
     branches:
-      - obtain-ip
+      - destroyi-*
 
 jobs:
-  get-ip-address:
+  destroy-terraform:
     runs-on: ubuntu-latest
     steps:
       - name: Obtener dirección IP del runner
