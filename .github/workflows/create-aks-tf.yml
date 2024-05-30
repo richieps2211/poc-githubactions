@@ -1,4 +1,4 @@
-name: CasoPractico-GHActionsTerraformChapterSync2
+name: CasoPractico-GHActionsTerraformChadpterSync2
 
 on:
   push: 
